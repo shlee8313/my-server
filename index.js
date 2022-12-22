@@ -35,9 +35,16 @@ app.get("/", (req, res) => {
 app.get("/home", function (req, res) {
   res.send("home");
 });
-const userRouter = require("./routes/user");
-app.use("/user", userRouter);
-
+/**
+ * 유저
+ * **/
+// const userRouter = require("./routes/user");
+// app.use("/user", userRouter);
+/**
+ * 공사현장
+ * **/
+const conSiteRouter = require("./routes/constructionSite");
+app.use("/construction-site", conSiteRouter);
 /**Start listening */
 app.listen(PORT, () => {
   console.log(`Listening for requests on port ${PORT}`);
