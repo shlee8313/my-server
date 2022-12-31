@@ -2,7 +2,6 @@ const express = require("express");
 const mariadb = require("mariadb");
 const router = express.Router();
 const pool = require("../db/db_con");
-// const bcrypt = require("bcrypt");
 
 router.get("/", async (req, res) => {
   // if (req.user) {
@@ -12,11 +11,11 @@ router.get("/", async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = "SELECT * FROM contruction_site";
+    const sql = "SELECT * FROM employee";
     // const rows = await pool.query(sql);
     const rows = await conn.query(sql);
     res.json(rows);
-    console.log("호출잘됨"); //[ {val: 1}, meta: ... ]
+    console.log("table test호출잘됨"); //[ {val: 1}, meta: ... ]
     // const res = await conn.query("INSERT INTO myTable value (?, ?)", [1, "mariadb"]);
     // console.log(res); // { affectedRows: 1, insertId: 1, warningStatus: 0 }
   } catch (err) {
@@ -30,7 +29,7 @@ router.get("/:id", async function (req, res) {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = `SELECT * FROM contruction_site WHERE user_id=?`;
+    const sql = `SELECT * FROM employee WHERE id=?`;
     const rows = await conn.query(sql, req.params.id);
     res.json(rows);
   } catch (err) {
@@ -46,36 +45,10 @@ router.post("/", async function (req, res) {
   console.log("POST 호출 호출" + req.body);
   try {
     conn = await pool.getConnection();
-    const {
-      user_id,
-      com_name,
-      site_name,
-      site_address,
-      start_date,
-      end_date,
-      include_sunday,
-      include_holiday,
-      captain_name,
-      captain_phone,
-      pay_method,
-    } = req.body;
+    const { name, email, phone, active } = req.body;
     // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql =
-      "INSERT INTO contruction_site (user_id, com_name, site_name, site_address, start_date, end_date, include_sunday, include_holiday, captain_name, captain_phone, pay_method) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-
-    const result = await conn.query(sql, [
-      user_id,
-      com_name,
-      site_name,
-      site_address,
-      start_date.substring(0, 10),
-      end_date.substring(0, 10),
-      Number(include_sunday),
-      Number(include_holiday),
-      captain_name,
-      captain_phone,
-      Number(pay_method),
-    ]);
+    const sql = "INSERT INTO employee ( name, email, phone,active) VALUES (?,?,?,?)";
+    const result = await conn.query(sql, [name, email, phone, active]);
 
     res.status(200).json({ result });
   } catch (err) {
@@ -85,45 +58,15 @@ router.post("/", async function (req, res) {
   }
 });
 
-router.get("/edit/:id", async function (req, res) {
-  let conn;
-  try {
-    conn = await pool.getConnection();
-    const sql = `SELECT * FROM contruction_site WHERE id=?`;
-    console.log("req.params.id" + req.params.id);
-    const rows = await conn.query(sql, req.params.id);
-    res.json(rows);
-  } catch (err) {
-    throw err;
-  } finally {
-    if (conn) return conn.end();
-  }
-  // res.json({ id: req.params.id });
-});
-router.put("/edit/:id", async function (req, res) {
+router.put("/:id", async function (req, res) {
   try {
     conn = await pool.getConnection();
     const id = req.params.id;
     console.log("업데이트 아이디:" + id);
-    const {
-      site_name,
-      site_address,
-      start_date,
-      end_date,
-      include_sunday,
-      include_holiday,
-      captain_name,
-      captain_phone,
-      pay_method,
-    } = req.body;
+    const { name, email, phone, active } = req.body;
     // console.log("업데이트 데이타:" + JSON.stringify(req.body));
     // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql = `UPDATE contruction_site SET site_name='${site_name}',site_address='${site_address}',start_date='${start_date.substring(
-      0,
-      10
-    )}',end_date='${end_date.substring(0, 10)}',
-    include_sunday='${include_sunday}',include_holiday='${include_holiday}',captain_name='${captain_name}',
-    captain_phone='${captain_phone}',pay_method='${pay_method}' WHERE id=${id}`;
+    const sql = `UPDATE employee SET name='${name}',email='${email}',phone='${phone}',active='${active}' WHERE id=${id}`;
     // console.log("업데이트 sql:" + sql);
     const result = await conn.query(sql);
 
@@ -133,7 +76,7 @@ router.put("/edit/:id", async function (req, res) {
 
     res.json({ result });
   } catch (err) {
-    res.json(error);
+    console.log("db error" + err);
     throw err;
   } finally {
     if (conn) return conn.end();
@@ -148,7 +91,7 @@ router.delete("/:id", async function (req, res) {
     // const id = req.body;
     // console.log("업데이트 데이타:" + id + JSON.stringify(req.body));
     // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql = `DELETE FROM contruction_site  WHERE id=${id}`;
+    const sql = `DELETE FROM employee  WHERE id=${id}`;
     // console.log("업데이트 sql:" + sql);
     const result = await conn.query(sql);
     BigInt.prototype.toJSON = function () {
@@ -157,11 +100,29 @@ router.delete("/:id", async function (req, res) {
     res.status(200).json({ result });
   } catch (err) {
     console.log("db error" + err);
-    res.json(error);
     throw err;
   } finally {
     if (conn) return conn.end();
   }
 });
+
+// router.post("/login", async function (req, res) {
+//   let conn;
+//   try {
+//     const { id, password } = req.body;
+//     conn = await pool.getConnection();
+//     const sql = "SELECT password FROM user WHERE id=?";
+//     const rows = await conn.query(sql, id);
+//     if (rows) {
+//       const isValid = await bcrypt.compare(password, rows[0].password);
+//       res.status(200).json({ valid_password: isValid });
+//     }
+//     res.status(200).send(`User with id ${id} was not found`);
+//   } catch (error) {
+//     res.status(400).send(error.message);
+//   } finally {
+//     if (conn) return conn.end();
+//   }
+// });
 
 module.exports = router;

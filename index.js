@@ -38,13 +38,30 @@ app.get("/home", function (req, res) {
 /**
  * 유저
  * **/
-// const userRouter = require("./routes/user");
-// app.use("/user", userRouter);
+const userRouter = require("./routes/comUser");
+app.use("/com-user", userRouter);
 /**
  * 공사현장
  * **/
 const conSiteRouter = require("./routes/constructionSite");
 app.use("/construction-site", conSiteRouter);
+
+/**
+ *
+ * 일용직
+ */
+const labor = require("./routes/labor");
+app.use("/labor", labor);
+
+const testRouter = require("./routes/test");
+app.use("/test", testRouter);
+
+/**
+ * employee
+ */
+const employeeRouter = require("./routes/employee");
+app.use("/employee", employeeRouter);
+
 /**Start listening */
 app.listen(PORT, () => {
   console.log(`Listening for requests on port ${PORT}`);
