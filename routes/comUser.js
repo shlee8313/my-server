@@ -28,7 +28,25 @@ router.get("/:id", async function (req, res) {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = `SELECT id, email, password, created_at FROM ComUser WHERE id=?`;
+    const sql = `SELECT user_id, user_name,  com_name, email, tel, biz_no, com_no, address, user_type FROM ComUser WHERE user_id=?`;
+    const rows = await conn.query(sql, req.params.id);
+    res.json(rows);
+  } catch (error) {
+    res.json(error);
+  } finally {
+    if (conn) return conn.end();
+  }
+  // res.json({ id: req.params.id });
+});
+
+router.put("/:id", async function (req, res) {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const { com_name, email, tel, biz_no, com_no, address, user_type } = req.body;
+    const sql = `UPDATE ComUser  SET   com_name="${com_name}", email="${email}", tel="${tel}", biz_no="${biz_no}", com_no="${com_no}", address="${address}", user_type="${user_type}"  WHERE user_id=?`;
+    console.log("sql==>" + sql);
+
     const rows = await conn.query(sql, req.params.id);
     res.json(rows);
   } catch (error) {
@@ -76,6 +94,43 @@ router.post("/register", async function (req, res) {
   } catch (error) {
     res.json(error);
     console.log("회원등록 실패" + error);
+  } finally {
+    if (conn) return conn.end();
+  }
+});
+
+router.post("/change-pass/:id", async function (req, res) {
+  let conn;
+  try {
+    const { username, password, newpassword } = req.body;
+    // console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
+    conn = await pool.getConnection();
+    const sql = "SELECT user_name, password FROM ComUser WHERE user_id=?";
+    // const sql = `SELECT user_id, password FROM ComUser WHERE user_name='${username}' and password='${password}'`;
+    // console.log("login" + sql);
+    const rows = await conn.query(sql, req.params.id);
+    // const rows = await conn.query(sql);
+    console.log("비번==>" + (await bcrypt.hash(newpassword, 10)));
+
+    if (rows) {
+      const nameValid = username == rows[0].user_name;
+      const isValid = await bcrypt.compare(password, rows[0].password);
+      console.log("네임벨리드==>" + nameValid + "패스밸리드=>" + isValid);
+      if (isValid & nameValid) {
+        const encryptedPassword = await bcrypt.hash(newpassword, 10);
+
+        const sql2 = `UPDATE ComUser SET password="${encryptedPassword}"  WHERE user_id=?`;
+        const rows2 = await conn.query(sql2, req.params.id);
+        res.json({ pass_valid: isValid, name_valid: nameValid });
+      } else {
+        res.json({ pass_valid: isValid, name_valid: nameValid });
+      }
+
+      // res.json({ valid_password: true, user_id: rows[0].user_id });
+    }
+    res.status(200).json({ notfound: true });
+  } catch (error) {
+    res.json(error);
   } finally {
     if (conn) return conn.end();
   }

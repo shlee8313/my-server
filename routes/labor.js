@@ -43,10 +43,10 @@ router.get("/search/:id", async function (req, res) {
   let conn;
   try {
     // console.log("데이타오냐" + JSON.stringify(req.query));
-    const { year, month } = req.query;
+    const { year, month, selectedSite } = req.query;
 
     conn = await pool.getConnection();
-    const sql = `SELECT l.labor_id, l.name,l.address,l.jumin,l.tel,l.image,l.email, w.user_id,w.con_site_id,w.year,w.month,w.day,w.amount  FROM labors_working as w ,labors as l WHERE year='${year}' and month='${month}' and user_id='${req.params.id}' and l.labor_id=w.labor_id`;
+    const sql = `SELECT l.labor_id, l.name,l.address,l.jumin,l.tel,l.image,l.email, w.user_id,w.con_site_id,w.year,w.month,w.day,w.amount  FROM labors_working as w ,labors as l WHERE w.year='${year}' and w.month='${month}' and w.con_site_id='${selectedSite}' and  w.user_id='${req.params.id}' and l.labor_id=w.labor_id`;
     console.log("일용sql" + sql);
     const rows = await conn.query(sql);
     // console.log("일용직검색 " + JSON.stringify(rows));

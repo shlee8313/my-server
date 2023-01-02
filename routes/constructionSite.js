@@ -30,11 +30,12 @@ router.get("/:id", async function (req, res) {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = `SELECT * FROM contruction_site WHERE user_id=?`;
+    const sql = `SELECT * FROM contruction_site WHERE user_id=? ORDER BY created_at DESC;`;
     const rows = await conn.query(sql, req.params.id);
     res.json(rows);
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    res.json(error);
+    console.log("일용직에러 " + error.message);
   } finally {
     if (conn) return conn.end();
   }
@@ -78,8 +79,9 @@ router.post("/", async function (req, res) {
     ]);
 
     res.status(200).json({ result });
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    res.json(error);
+    console.log("일용직에러 " + error.message);
   } finally {
     if (conn) return conn.end();
   }
@@ -100,6 +102,7 @@ router.get("/edit/:id", async function (req, res) {
   }
   // res.json({ id: req.params.id });
 });
+
 router.put("/edit/:id", async function (req, res) {
   try {
     conn = await pool.getConnection();
@@ -132,9 +135,8 @@ router.put("/edit/:id", async function (req, res) {
     };
 
     res.json({ result });
-  } catch (err) {
+  } catch (error) {
     res.json(error);
-    throw err;
   } finally {
     if (conn) return conn.end();
   }
@@ -155,10 +157,9 @@ router.delete("/:id", async function (req, res) {
       return this.toString();
     };
     res.status(200).json({ result });
-  } catch (err) {
-    console.log("db error" + err);
+  } catch (error) {
+    console.log("db error" + error);
     res.json(error);
-    throw err;
   } finally {
     if (conn) return conn.end();
   }
