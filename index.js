@@ -57,10 +57,10 @@ const testRouter = require("./routes/test");
 app.use("/test", testRouter);
 
 /**
- * employee
+ * 구인공고
  */
-const employeeRouter = require("./routes/employee");
-app.use("/employee", employeeRouter);
+const wantedRouter = require("./routes/wanted");
+app.use("/wanted", wantedRouter);
 
 /**Start listening */
 app.listen(PORT, () => {

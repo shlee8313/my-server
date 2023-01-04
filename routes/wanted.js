@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = "SELECT * FROM employee";
+    const sql = "SELECT * FROM wanted_man";
     // const rows = await pool.query(sql);
     const rows = await conn.query(sql);
     res.json(rows);
@@ -29,7 +29,7 @@ router.get("/:id", async function (req, res) {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = `SELECT * FROM employee WHERE id=?`;
+    const sql = `SELECT * FROM wanted_man WHERE id=?`;
     const rows = await conn.query(sql, req.params.id);
     res.json(rows);
   } catch (err) {
@@ -40,19 +40,65 @@ router.get("/:id", async function (req, res) {
   // res.json({ id: req.params.id });
 });
 
-router.post("/", async function (req, res) {
+// router.post("/", async function (req, res) {
+//   let conn;
+//   // console.log("POST 호출 호출" + req.body);
+//   try {
+//     conn = await pool.getConnection();
+//     const { id, day, selectMetro, selectCity, jobType, jobCount, jobPay, description } = req.body;
+//     // console.log("" + JSON.stringify(req.body));
+//     const sql =
+//       "INSERT INTO wanted_man ( user_id, event_id, date, metro_city, city, job_type, job_conut, amount, description) VALUES (?,?,?,?,?,?,?,?)";
+//     const result = await conn.query(sql, [
+//       user_id,
+//       id,
+//       day,
+//       selectMetro,
+//       selectCity,
+//       jobType,
+//       Number(jobCount),
+//       Number(jobPay),
+//       description,
+//     ]);
+
+//     res.status(200).json({ result });
+//   } catch (err) {
+//     throw err;
+//   } finally {
+//     if (conn) return conn.end();
+//   }
+// });
+
+router.post("/:id", async function (req, res) {
   let conn;
-  console.log("POST 호출 호출" + req.body);
+  console.log("POST 호출 호출" + JSON.stringify(req.body));
+  const user_id = req.params.id;
+  console.log("유저아이디" + JSON.stringify(user_id));
   try {
     conn = await pool.getConnection();
-    const { name, email, phone, active } = req.body;
+    const { id, day, selectMetro, selectCity, jobType, jobCount, jobPay, description } = req.body;
     // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql = "INSERT INTO employee ( name, email, phone,active) VALUES (?,?,?,?)";
-    const result = await conn.query(sql, [name, email, phone, active]);
-
+    const sql =
+      "INSERT INTO wanted_man ( user_id, event_id, date, metro_city, city, job_type, job_conut, amount, description) VALUES (?,?,?,?,?,?,?,?,?) ";
+    const result = await conn.query(sql, [
+      user_id,
+      id,
+      day,
+      selectMetro,
+      selectCity,
+      jobType,
+      Number(jobCount),
+      Number(jobPay),
+      description,
+    ]);
+    BigInt.prototype.toJSON = function () {
+      return this.toString();
+    };
+    console.log("성공" + JSON.stringify(result));
     res.status(200).json({ result });
   } catch (err) {
-    throw err;
+    console.log(err);
+    res.json(err);
   } finally {
     if (conn) return conn.end();
   }
@@ -63,11 +109,11 @@ router.put("/:id", async function (req, res) {
     conn = await pool.getConnection();
     const id = req.params.id;
     console.log("업데이트 아이디:" + id);
-    const { name, email, phone, active } = req.body;
+    const { day, selectMetro, selectCity, jobType, jobCount, jobPay, description } = req.body;
     // console.log("업데이트 데이타:" + JSON.stringify(req.body));
-    // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql = `UPDATE employee SET name='${name}',email='${email}',phone='${phone}',active='${active}' WHERE id=${id}`;
-    // console.log("업데이트 sql:" + sql);
+
+    const sql = `UPDATE wanted_man SET date='${day}',metro_city='${selectMetro}',city='${selectCity}',job_type='${jobType}',job_conut='${jobCount}',amount='${jobPay}',description='${description}' WHERE event_id=${id}`;
+    console.log("업데이트 sql:" + sql);
     const result = await conn.query(sql);
 
     BigInt.prototype.toJSON = function () {
@@ -91,8 +137,8 @@ router.delete("/:id", async function (req, res) {
     // const id = req.body;
     // console.log("업데이트 데이타:" + id + JSON.stringify(req.body));
     // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql = `DELETE FROM employee  WHERE id=${id}`;
-    // console.log("업데이트 sql:" + sql);
+    const sql = `DELETE FROM wanted_man  WHERE event_id=${id}`;
+    console.log("DELETE sql:" + sql);
     const result = await conn.query(sql);
     BigInt.prototype.toJSON = function () {
       return this.toString();

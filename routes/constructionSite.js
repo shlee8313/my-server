@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
     const sql = "SELECT * FROM contruction_site";
     // const rows = await pool.query(sql);
     const rows = await conn.query(sql);
+    // console.log("호출"+);
     res.json(rows);
     console.log("호출잘됨"); //[ {val: 1}, meta: ... ]
     // const res = await conn.query("INSERT INTO myTable value (?, ?)", [1, "mariadb"]);
@@ -32,6 +33,7 @@ router.get("/:id", async function (req, res) {
     conn = await pool.getConnection();
     const sql = `SELECT * FROM contruction_site WHERE user_id=? ORDER BY created_at DESC;`;
     const rows = await conn.query(sql, req.params.id);
+    console.log("호출잘됨");
     res.json(rows);
   } catch (error) {
     res.json(error);
@@ -48,6 +50,7 @@ router.post("/", async function (req, res) {
   try {
     conn = await pool.getConnection();
     const {
+      site_id,
       user_id,
       com_name,
       site_name,
@@ -62,10 +65,11 @@ router.post("/", async function (req, res) {
     } = req.body;
     // const encryptedPassword = await bcrypt.hash(password, 10);
     const sql =
-      "INSERT INTO contruction_site (user_id, com_name, site_name, site_address, start_date, end_date, include_sunday, include_holiday, captain_name, captain_phone, pay_method) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+      "INSERT INTO contruction_site (user_id,site_id, com_name, site_name, site_address, start_date, end_date, include_sunday, include_holiday, captain_name, captain_phone, pay_method) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
     const result = await conn.query(sql, [
       user_id,
+      site_id,
       com_name,
       site_name,
       site_address,
@@ -94,6 +98,7 @@ router.get("/edit/:id", async function (req, res) {
     const sql = `SELECT * FROM contruction_site WHERE id=?`;
     console.log("req.params.id" + req.params.id);
     const rows = await conn.query(sql, req.params.id);
+    console.log("수정시 조회" + JSON.stringify(rows));
     res.json(rows);
   } catch (err) {
     throw err;
@@ -121,13 +126,10 @@ router.put("/edit/:id", async function (req, res) {
     } = req.body;
     // console.log("업데이트 데이타:" + JSON.stringify(req.body));
     // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql = `UPDATE contruction_site SET site_name='${site_name}',site_address='${site_address}',start_date='${start_date.substring(
-      0,
-      10
-    )}',end_date='${end_date.substring(0, 10)}',
+    const sql = `UPDATE contruction_site SET site_name='${site_name}',site_address='${site_address}',start_date='${start_date}',end_date='${end_date}',
     include_sunday='${include_sunday}',include_holiday='${include_holiday}',captain_name='${captain_name}',
     captain_phone='${captain_phone}',pay_method='${pay_method}' WHERE id=${id}`;
-    // console.log("업데이트 sql:" + sql);
+    console.log("업데이트 sql:" + sql);
     const result = await conn.query(sql);
 
     BigInt.prototype.toJSON = function () {
@@ -150,7 +152,7 @@ router.delete("/:id", async function (req, res) {
     // const id = req.body;
     // console.log("업데이트 데이타:" + id + JSON.stringify(req.body));
     // const encryptedPassword = await bcrypt.hash(password, 10);
-    const sql = `DELETE FROM contruction_site  WHERE id=${id}`;
+    const sql = `DELETE FROM contruction_site  WHERE site_id=${id}`;
     // console.log("업데이트 sql:" + sql);
     const result = await conn.query(sql);
     BigInt.prototype.toJSON = function () {
