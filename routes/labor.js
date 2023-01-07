@@ -28,7 +28,7 @@ router.get("/:id", async function (req, res) {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = `SELECT *  FROM labors WHERE id=?`;
+    const sql = `SELECT *  FROM labors WHERE labor_id=?`;
     const rows = await conn.query(sql, req.params.id);
     res.json(rows);
   } catch (error) {
@@ -39,29 +39,41 @@ router.get("/:id", async function (req, res) {
   // res.json({ id: req.params.id });
 });
 
-router.get("/search/:id", async function (req, res) {
+router.post("/change-pass/:id", async function (req, res) {
   let conn;
   try {
-    // console.log("데이타오냐" + JSON.stringify(req.query));
-    const { year, month, selectedSite } = req.query;
-
+    const { username, password, newpassword } = req.body;
+    // console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
     conn = await pool.getConnection();
-    const sql = `SELECT l.labor_id, l.name,l.address,l.jumin,l.tel,l.image,l.email, w.user_id,w.con_site_id,w.year,w.month,w.day,w.amount  FROM labors_working as w ,labors as l WHERE w.year='${year}' and w.month='${month}' and w.con_site_id='${selectedSite}' and  w.user_id='${req.params.id}' and l.labor_id=w.labor_id`;
-    console.log("일용sql" + sql);
-    const rows = await conn.query(sql);
-    // console.log("일용직검색 " + JSON.stringify(rows));
+    const sql = "SELECT labor_id, password FROM labors WHERE labor_id=?";
+    // const sql = `SELECT user_id, password FROM ComUser WHERE user_name='${username}' and password='${password}'`;
+    // console.log("login" + sql);
+    const rows = await conn.query(sql, req.params.id);
+    // const rows = await conn.query(sql);
+    console.log("비번==>" + (await bcrypt.hash(newpassword, 10)));
 
     if (rows) {
-      res.json(rows);
+      const nameValid = username == rows[0].labor_id;
+      const isValid = await bcrypt.compare(password, rows[0].password);
+      console.log("네임벨리드==>" + nameValid + "패스밸리드=>" + isValid);
+      if (isValid & nameValid) {
+        const encryptedPassword = await bcrypt.hash(newpassword, 10);
+
+        const sql2 = `UPDATE labors SET password="${encryptedPassword}"  WHERE labor_id=?`;
+        const rows2 = await conn.query(sql2, req.params.id);
+        res.json({ pass_valid: isValid, name_valid: nameValid });
+      } else {
+        res.json({ pass_valid: isValid, name_valid: nameValid });
+      }
+
       // res.json({ valid_password: true, user_id: rows[0].user_id });
     }
+    res.status(200).json({ notfound: true });
   } catch (error) {
     res.json(error);
-    console.log("일용직에러 " + error.message);
   } finally {
     if (conn) return conn.end();
   }
-  // res.json({ id: req.params.id });
 });
 
 router.post("/register", async function (req, res) {
@@ -110,11 +122,11 @@ router.post("/login", async function (req, res) {
   let conn;
   try {
     const { username, password } = req.body;
-    // console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
+    console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
     conn = await pool.getConnection();
-    const sql = "SELECT * FROM labors WHERE email=?";
+    const sql = "SELECT * FROM labors WHERE labor_id=?";
     // const sql = `SELECT user_id, password FROM ComUser WHERE user_name='${username}' and password='${password}'`;
-    // console.log("login" + sql);
+    console.log("login" + sql);
     const rows = await conn.query(sql, username);
     // const rows = await conn.query(sql);
     // console.log("login" + conn.query(sql, username, password));

@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
   console.log("커리" + JSON.stringify(req.query));
   const metro = req.query.metro_city;
   const city = req.query.city;
-  if (city === "") {
+  if (!city) {
     sql =
       "SELECT metro_city,city,date,`job_type`,sum(`job_count`) as count,`amount`,`description` FROM `wanted_man` GROUP by date, job_type;";
   } else {

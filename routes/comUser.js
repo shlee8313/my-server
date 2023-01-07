@@ -153,7 +153,7 @@ router.post("/login", async function (req, res) {
 
       if (isValid) {
         const sql2 =
-          "SELECT user_id, user_name, com_name, email, tel, biz_no, com_no, address FROM ComUser WHERE user_name=?";
+          "SELECT user_id, user_name, com_name, email, tel, biz_no, com_no, address,user_type FROM ComUser WHERE user_name=?";
         const rows2 = await conn.query(sql2, username);
         res.json({ valid_password: isValid, user: rows2 });
       } else {

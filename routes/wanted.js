@@ -2,12 +2,12 @@ const express = require("express");
 const mariadb = require("mariadb");
 const router = express.Router();
 const pool = require("../db/db_con");
-const dayjs = require("dayjs");
+
 router.get("/", async (req, res) => {
   // if (req.user) {
   //   return res.send(`${req.user.username}님 환영합니다!`);
   // }
-
+  // 인력공고
   let conn;
   try {
     conn = await pool.getConnection();
@@ -81,6 +81,8 @@ router.post("/:id", async function (req, res) {
     // const encryptedPassword = await bcrypt.hash(password, 10);
     const sql =
       "INSERT INTO wanted_man ( user_id, event_id, date, metro_city, city, job_type, job_count, amount, description) VALUES (?,?,?,?,?,?,?,?,?) ";
+    console.log("Wanted 인서트" + sql);
+
     const result = await conn.query(sql, [
       user_id,
       id,
