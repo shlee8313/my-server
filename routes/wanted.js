@@ -2,7 +2,7 @@ const express = require("express");
 const mariadb = require("mariadb");
 const router = express.Router();
 const pool = require("../db/db_con");
-
+const dayjs = require("dayjs");
 router.get("/", async (req, res) => {
   // if (req.user) {
   //   return res.send(`${req.user.username}님 환영합니다!`);
@@ -48,7 +48,7 @@ router.get("/:id", async function (req, res) {
 //     const { id, day, selectMetro, selectCity, jobType, jobCount, jobPay, description } = req.body;
 //     // console.log("" + JSON.stringify(req.body));
 //     const sql =
-//       "INSERT INTO wanted_man ( user_id, event_id, date, metro_city, city, job_type, job_conut, amount, description) VALUES (?,?,?,?,?,?,?,?)";
+//       "INSERT INTO wanted_man ( user_id, event_id, date, metro_city, city, job_type, job_count, amount, description) VALUES (?,?,?,?,?,?,?,?)";
 //     const result = await conn.query(sql, [
 //       user_id,
 //       id,
@@ -71,19 +71,20 @@ router.get("/:id", async function (req, res) {
 
 router.post("/:id", async function (req, res) {
   let conn;
-  console.log("POST 호출 호출" + JSON.stringify(req.body));
+  // console.log("POST 호출 호출" + JSON.stringify(req.body));
   const user_id = req.params.id;
   console.log("유저아이디" + JSON.stringify(user_id));
   try {
     conn = await pool.getConnection();
-    const { id, day, selectMetro, selectCity, jobType, jobCount, jobPay, description } = req.body;
+    const { id, daytype, selectMetro, selectCity, jobType, jobCount, jobPay, description } =
+      req.body;
     // const encryptedPassword = await bcrypt.hash(password, 10);
     const sql =
-      "INSERT INTO wanted_man ( user_id, event_id, date, metro_city, city, job_type, job_conut, amount, description) VALUES (?,?,?,?,?,?,?,?,?) ";
+      "INSERT INTO wanted_man ( user_id, event_id, date, metro_city, city, job_type, job_count, amount, description) VALUES (?,?,?,?,?,?,?,?,?) ";
     const result = await conn.query(sql, [
       user_id,
       id,
-      day,
+      daytype,
       selectMetro,
       selectCity,
       jobType,
@@ -112,7 +113,7 @@ router.put("/:id", async function (req, res) {
     const { day, selectMetro, selectCity, jobType, jobCount, jobPay, description } = req.body;
     // console.log("업데이트 데이타:" + JSON.stringify(req.body));
 
-    const sql = `UPDATE wanted_man SET date='${day}',metro_city='${selectMetro}',city='${selectCity}',job_type='${jobType}',job_conut='${jobCount}',amount='${jobPay}',description='${description}' WHERE event_id=${id}`;
+    const sql = `UPDATE wanted_man SET date='${day}',metro_city='${selectMetro}',city='${selectCity}',job_type='${jobType}',job_count='${jobCount}',amount='${jobPay}',description='${description}' WHERE event_id=${id}`;
     console.log("업데이트 sql:" + sql);
     const result = await conn.query(sql);
 

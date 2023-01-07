@@ -8,6 +8,7 @@ const pool = mariadb.createPool({
   password: vals.DBPassword,
   database: vals.Database,
   connectionLimit: 5,
+  dateStrings: "date",
 });
 
 // Connect and check for errors

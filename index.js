@@ -62,6 +62,20 @@ app.use("/test", testRouter);
 const wantedRouter = require("./routes/wanted");
 app.use("/wanted", wantedRouter);
 
+/**
+ * 직종 디테일 조회
+ */
+const detailJobRouter = require("./routes/detailJob");
+app.use("/job-details", detailJobRouter);
+
+/**
+ *
+ * home Calendar에
+ */
+
+const homeCalenderRouter = require("./routes/home-calendar");
+app.use("/home-calendar", homeCalenderRouter);
+
 /**Start listening */
 app.listen(PORT, () => {
   console.log(`Listening for requests on port ${PORT}`);
