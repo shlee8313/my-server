@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = "SELECT * FROM ComUser ";
+    const sql = "SELECT * FROM users ";
     // const rows = await pool.query(sql);
     const rows = await conn.query(sql);
     res.json(rows);
@@ -28,7 +28,7 @@ router.get("/:id", async function (req, res) {
   let conn;
   try {
     conn = await pool.getConnection();
-    const sql = `SELECT user_id, user_name,  com_name, email, tel, biz_no, com_no, address, user_type FROM ComUser WHERE user_id=?`;
+    const sql = `SELECT user_id, user_name,  com_name, email, tel, biz_no, com_no, address, user_type FROM users WHERE user_id=?`;
     const rows = await conn.query(sql, req.params.id);
     res.json(rows);
   } catch (error) {
@@ -44,7 +44,7 @@ router.put("/:id", async function (req, res) {
   try {
     conn = await pool.getConnection();
     const { com_name, email, tel, biz_no, com_no, address, user_type } = req.body;
-    const sql = `UPDATE ComUser  SET   com_name="${com_name}", email="${email}", tel="${tel}", biz_no="${biz_no}", com_no="${com_no}", address="${address}", user_type="${user_type}"  WHERE user_id=?`;
+    const sql = `UPDATE users  SET   com_name="${com_name}", email="${email}", tel="${tel}", biz_no="${biz_no}", com_no="${com_no}", address="${address}", user_type="${user_type}"  WHERE user_id=?`;
     console.log("sql==>" + sql);
 
     const rows = await conn.query(sql, req.params.id);
@@ -67,7 +67,7 @@ router.post("/register", async function (req, res) {
     const { user_name, password, com_name, email, tel, biz_no, com_no, address } = data;
     const encryptedPassword = await bcrypt.hash(password, 10);
     const sql =
-      "INSERT INTO `ComUser`( user_id, user_name, password, com_name, email, tel, biz_no, com_no, address) VALUES (?,?,?,?,?,?,?,?,?)";
+      "INSERT INTO `users`( user_id, user_name, password, com_name, email, tel, biz_no, com_no, address) VALUES (?,?,?,?,?,?,?,?,?)";
 
     console.log(
       "인서트" +
@@ -105,8 +105,8 @@ router.post("/change-pass/:id", async function (req, res) {
     const { username, password, newpassword } = req.body;
     // console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
     conn = await pool.getConnection();
-    const sql = "SELECT user_name, password FROM ComUser WHERE user_id=?";
-    // const sql = `SELECT user_id, password FROM ComUser WHERE user_name='${username}' and password='${password}'`;
+    const sql = "SELECT user_name, password FROM users WHERE user_id=?";
+    // const sql = `SELECT user_id, password FROM users WHERE user_name='${username}' and password='${password}'`;
     // console.log("login" + sql);
     const rows = await conn.query(sql, req.params.id);
     // const rows = await conn.query(sql);
@@ -119,7 +119,7 @@ router.post("/change-pass/:id", async function (req, res) {
       if (isValid & nameValid) {
         const encryptedPassword = await bcrypt.hash(newpassword, 10);
 
-        const sql2 = `UPDATE ComUser SET password="${encryptedPassword}"  WHERE user_id=?`;
+        const sql2 = `UPDATE users SET password="${encryptedPassword}"  WHERE user_id=?`;
         const rows2 = await conn.query(sql2, req.params.id);
         res.json({ pass_valid: isValid, name_valid: nameValid });
       } else {
@@ -142,8 +142,8 @@ router.post("/login", async function (req, res) {
     const { username, password } = req.body;
     // console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
     conn = await pool.getConnection();
-    const sql = "SELECT * FROM ComUser WHERE user_name=?";
-    // const sql = `SELECT user_id, password FROM ComUser WHERE user_name='${username}' and password='${password}'`;
+    const sql = "SELECT * FROM users WHERE user_name=?";
+    // const sql = `SELECT user_id, password FROM users WHERE user_name='${username}' and password='${password}'`;
     // console.log("login" + sql);
     const rows = await conn.query(sql, username);
     // const rows = await conn.query(sql);
@@ -153,7 +153,7 @@ router.post("/login", async function (req, res) {
 
       if (isValid) {
         const sql2 =
-          "SELECT user_id, user_name, com_name, email, tel, biz_no, com_no, address,user_type FROM ComUser WHERE user_name=?";
+          "SELECT user_id,  com_name, email, tel, biz_no, com_no, name, address, jumin, image, user_type FROM users WHERE user_name=?";
         const rows2 = await conn.query(sql2, username);
         res.json({ valid_password: isValid, user: rows2 });
       } else {

@@ -38,8 +38,8 @@ app.get("/home", function (req, res) {
 /**
  * 유저
  * **/
-const userRouter = require("./routes/comUser");
-app.use("/com-user", userRouter);
+const userRouter = require("./routes/users");
+app.use("/user", userRouter);
 /**
  * 공사현장
  * **/

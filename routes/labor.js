@@ -46,7 +46,7 @@ router.post("/change-pass/:id", async function (req, res) {
     // console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
     conn = await pool.getConnection();
     const sql = "SELECT labor_id, password FROM labors WHERE labor_id=?";
-    // const sql = `SELECT user_id, password FROM ComUser WHERE user_name='${username}' and password='${password}'`;
+    // const sql = `SELECT user_id, password FROM users WHERE user_name='${username}' and password='${password}'`;
     // console.log("login" + sql);
     const rows = await conn.query(sql, req.params.id);
     // const rows = await conn.query(sql);
@@ -125,7 +125,7 @@ router.post("/login", async function (req, res) {
     console.log("비번암호화==" + (await bcrypt.hash(password, 10)));
     conn = await pool.getConnection();
     const sql = "SELECT * FROM labors WHERE labor_id=?";
-    // const sql = `SELECT user_id, password FROM ComUser WHERE user_name='${username}' and password='${password}'`;
+    // const sql = `SELECT user_id, password FROM users WHERE user_name='${username}' and password='${password}'`;
     console.log("login" + sql);
     const rows = await conn.query(sql, username);
     // const rows = await conn.query(sql);

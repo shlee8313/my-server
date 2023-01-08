@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
   try {
     conn = await pool.getConnection();
 
-    const sql = `select a.event_id, a.date, a.metro_city,  a.city, a.job_type , a.job_count, a.amount, a.description , b.com_name, b.tel, b.address, b.biz_no from wanted_man as a left join ComUser as b on a.user_id = b.user_id  where a.job_type="${jobtype}"  and a.date="${date}" and  a.metro_city="${metro}" and a.city="${city}"`; //and metro_city=${} and city=${}
+    const sql = `select a.event_id, a.date, a.metro_city,  a.city, a.job_type , a.job_count, a.amount, a.description , b.com_name, b.tel, b.address, b.biz_no from wanted_man as a left join users as b on a.user_id = b.user_id  where a.job_type="${jobtype}"  and a.date="${date}" and  a.metro_city="${metro}" and a.city="${city}"`; //and metro_city=${} and city=${}
     console.log(sql);
     const rows = await conn.query(sql);
     console.log("호출" + JSON.stringify(rows));
